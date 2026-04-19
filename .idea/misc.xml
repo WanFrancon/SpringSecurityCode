@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="MavenProjectsManager">
+    <option name="originalFiles">
+      <list>
+        <option value="$PROJECT_DIR$/Security-01-base/pom.xml" />
+        <option value="$PROJECT_DIR$/security-01-base/pom.xml" />
+        <option value="$PROJECT_DIR$/security-02-db-login/pom.xml" />
+        <option value="$PROJECT_DIR$/security-03-capticha/pom.xml" />
+        <option value="$PROJECT_DIR$/security-04-login_info/pom.xml" />
+        <option value="$PROJECT_DIR$/security-04-loginInfo/pom.xml" />
+        <option value="$PROJECT_DIR$/security-05-role-permission/pom.xml" />
+      </list>
+    </option>
+    <option name="ignoredFiles">
+      <set>
+        <option value="$PROJECT_DIR$/security-04-login_info/pom.xml" />
+      </set>
+    </option>
+  </component>
+  <component name="ProjectInspectionProfilesVisibleTreeState">
+    <entry key="Project Default">
+      <profile-state>
+        <expanded-state>
+          <State>
+            <id>Bean 验证</id>
+          </State>
+          <State>
+            <id>Java</id>
+          </State>
+          <State>
+            <id>Kotlin</id>
+          </State>
+          <State>
+            <id>Micronaut</id>
+          </State>
+          <State>
+            <id>MicronautMicronaut</id>
+          </State>
+          <State>
+            <id>Spring</id>
+          </State>
+          <State>
+            <id>Spring AOPSpring</id>
+          </State>
+          <State>
+            <id>Spring CoreSpring</id>
+          </State>
+          <State>
+            <id>TestNGJava</id>
+          </State>
+          <State>
+            <id>XMLSpring CoreSpring</id>
+          </State>
+          <State>
+            <id>可能的 bugJava</id>
+          </State>
+          <State>
+            <id>国际化Java</id>
+          </State>
+          <State>
+            <id>并发注解问题Java</id>
+          </State>
+          <State>
+            <id>抽象问题Java</id>
+          </State>
+          <State>
+            <id>样式问题Kotlin</id>
+          </State>
+          <State>
+            <id>详细或冗余的代码结构Java</id>
+          </State>
+        </expanded-state>
+      </profile-state>
+    </entry>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_17" default="true" project-jdk-name="17 (2)" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/out" />
+  </component>
+</project>

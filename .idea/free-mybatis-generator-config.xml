@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PersistentConfig">
+    <option name="historyConfigList">
+      <map>
+        <entry key="t_role">
+          <value>
+            <Config>
+              <option name="annotationDAO" value="true" />
+              <option name="comment" value="true" />
+              <option name="daoMvnPath" value="src/main/java" />
+              <option name="daoName" value="TRoleDao" />
+              <option name="daoPackage" value="com.franco.mapper" />
+              <option name="daoPostfix" value="Dao" />
+              <option name="modelMvnPath" value="src/main/java" />
+              <option name="modelName" value="TRole" />
+              <option name="modelPackage" value="com.franco.pojo" />
+              <option name="name" value="t_role" />
+              <option name="overrideJava" value="true" />
+              <option name="overrideXML" value="true" />
+              <option name="primaryKey" value="id" />
+              <option name="projectFolder" value="$PROJECT_DIR$/security-05-role-permission" />
+              <option name="tableName" value="t_role" />
+              <option name="useLombokPlugin" value="true" />
+              <option name="useSchemaPrefix" value="true" />
+              <option name="xmlMvnPath" value="src/main/resources" />
+              <option name="xmlPackage" value="com.franco.mapper" />
+            </Config>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>
