@@ -11,6 +11,10 @@
         <option value="$PROJECT_DIR$/security-04-login_info/pom.xml" />
         <option value="$PROJECT_DIR$/security-04-loginInfo/pom.xml" />
         <option value="$PROJECT_DIR$/security-05-role-permission/pom.xml" />
+        <option value="$PROJECT_DIR$/security-06-code-permission/pom.xml" />
+        <option value="$PROJECT_DIR$/security-07-ogin-api/pom.xml" />
+        <option value="$PROJECT_DIR$/security-06-code-permissions/pom.xml" />
+        <option value="$PROJECT_DIR$/security-08-login-jwt/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">
