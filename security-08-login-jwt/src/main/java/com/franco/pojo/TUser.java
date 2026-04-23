@@ -121,7 +121,7 @@ public class TUser implements Serializable , UserDetails {
 //            authorities.add(new SimpleGrantedAuthority(tRolePermission.getCode()));
 //        }
 //        return authorities;
-        return null;
+        return List.of();
     }
 
     /**

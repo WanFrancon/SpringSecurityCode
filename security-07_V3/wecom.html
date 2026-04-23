@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>欢迎界面</title>
+    <link href="./css/index.css" rel="stylesheet" type="text/css" />
+    <script src="./js/vue.global.js"></script>
+    <script src="./js/element-plus.js"></script>
+    <script src="./js/axios.min.js"></script>
+  </head>
+
+  <body>
+    <div id="app">
+      <section class="login">
+        <h2>用户信息：</h2>
+        <pre>{{ userProfile }}</pre>
+      </section>
+
+      <!-- 退出 -->
+      <section class="logout" v-if="isLogin">
+        <button @click="logout">Logout</button>
+      </section>
+    </div>
+    <script>
+      const { createApp, reactive, ref, onMounted } = Vue;
+
+      createApp({
+        setup() {
+          const isLogin = ref(false);
+          const userProfile = ref({});
+
+          const showUserProfile = () => {
+            const token = window.sessionStorage.getItem("token");
+
+            if (!token) {
+              alert("请先登录");
+              window.location.href = "./index.html";
+              return;
+            }
+
+            axios({
+              method: "get",
+              url: "http://localhost:8080/welcome2",
+              headers: {
+                Authorization: `Bearer ${token.replace(/^"|"$/g, "")}`,
+              },
+            })
+              .then((result) => {
+                alert("访问成功，欢迎界面显示用户信息");
+                userProfile.value = result.data;
+                console.log("user profile response:", result.data);
+                isLogin.value = true;
+              })
+              .catch((err) => {
+                console.error(err);
+                alert("访问失败，无法获取用户信息");
+              });
+          };
+
+          const logout = () => {
+            window.sessionStorage.removeItem("token");
+            isLogin.value = false;
+          };
+
+          onMounted(() => {
+            showUserProfile();
+          });
+
+          return {
+            userProfile,
+            isLogin,
+            logout,
+          };
+        },
+      })
+        .use(ElementPlus)
+        .mount("#app");
+    </script>
+  </body>
+</html>

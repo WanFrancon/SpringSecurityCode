@@ -1,5 +1,6 @@
 package com.franco.filter;
 
+import com.franco.constant.Constant;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,9 +16,6 @@ import java.io.IOException;
  */
 @Component
 public class CaptchaFilter extends OncePerRequestFilter {
-    // 登录请求的url
-    private static final String LOGIN_PROCESSING_URL = "/userLogin";
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
@@ -25,7 +23,7 @@ public class CaptchaFilter extends OncePerRequestFilter {
         String requestUrl = request.getServletPath(); // 获取当前请求的url
 
         // 判断当前请求是否是登录请求（并且是post请求方式）
-        boolean isLoginSubmission = LOGIN_PROCESSING_URL.equals(requestUrl)
+        boolean isLoginSubmission = Constant.LOGIN_PROCESSING_URL.equals(requestUrl)
                 && "POST".equalsIgnoreCase(request.getMethod());
 
         if (!isLoginSubmission) { // 不是登录请求
@@ -40,7 +38,7 @@ public class CaptchaFilter extends OncePerRequestFilter {
 
         // 验证码校验
         if (!StringUtils.hasLength(requestCaptcha) || !requestCaptcha.equals(sessionCaptcha)) {
-            response.sendRedirect(LOGIN_PROCESSING_URL); // 重定向到登录页面
+            response.sendRedirect(Constant.LOGIN_PROCESSING_URL); // 重定向到登录页面
             return;
         }
 

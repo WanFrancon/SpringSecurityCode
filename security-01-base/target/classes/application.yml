@@ -1,9 +1,0 @@
-# 配置项目的名称，现在用不上，这个是后续在配置微服务中会使用的
-spring:
-  application:
-    name: security-01-base
-
-  security:
-    user:
-      name: fr
-      password: 123123

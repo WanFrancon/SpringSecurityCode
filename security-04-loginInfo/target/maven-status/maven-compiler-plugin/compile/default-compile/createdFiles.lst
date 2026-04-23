@@ -1,9 +1,0 @@
-com\franco\filter\CaptchaFilter.class
-com\franco\mapper\TUserMapper.class
-com\franco\controller\UserController.class
-com\franco\service\impl\UserServiceImpl.class
-com\franco\utils\MyCodeGenerator.class
-com\franco\config\SecurityConfig.class
-com\franco\service\UserService.class
-com\franco\pojo\TUser.class
-com\franco\Security04LoginInfoApplication.class

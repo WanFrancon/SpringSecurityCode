@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+    <link href="./css/index.css" rel="stylesheet" type="text/css" />
+    <script src="./js/vue.global.js"></script>
+    <script src="./js/element-plus.js"></script>
+    <script src="./js/axios.min.js"></script>
+  </head>
+
+  <body>
+    <div id="app">
+      <!-- 登录表单 -->
+      <section class="login">
+        <h2>Login</h2>
+        <el-form class="nameAndPwd" label-width="90px">
+          <el-form-item label="Username">
+            <el-input placeholder="Username" v-model="form.username"></el-input>
+          </el-form-item>
+          <el-form-item label="Password">
+            <el-input
+              placeholder="Password"
+              v-model="form.password"
+              type="password"
+            ></el-input>
+          </el-form-item>
+        </el-form>
+        <button @click="login">Login</button>
+      </section>
+    </div>
+    <script>
+      const { createApp, reactive, ref } = Vue;
+
+      createApp({
+        setup() {
+          const form = reactive({
+            username: "zhangqi",
+            password: "aaa111",
+          });
+
+          const login = () => {
+            const params = new URLSearchParams();
+            params.append("username", form.username);
+            params.append("password", form.password);
+
+            axios({
+              method: "post",
+              url: "http://localhost:8080/user/login",
+              data: params,
+            })
+              .then((result) => {
+                const token = result.data?.token;
+                console.log("login response:", result.data);
+                console.log("token:", token);
+
+                if (!token) {
+                  alert("Login success, but token is missing");
+                  return;
+                }
+
+                /*将登录响应存储在 浏览器 sessionStorage 中*/
+                //方式一：使用 会话存储 存储登录响应(只在一个标签页中有效，关闭标签页后数据会被清除 推荐使用)
+                window.sessionStorage.setItem("token", token);
+
+                //   //方式二：使用 本地存储 存储登录响应（在浏览器关闭后数据仍会保留，不太安全）
+                // window.localStorage.setItem(
+                //   "token",
+                //   JSON.stringify(token),
+                // );
+                alert("Login success");
+
+                // 登录成功后，可以选择跳转到wecom页面
+                window.location.href = "./wecom.html";
+              })
+              .catch((err) => {
+                console.error(err);
+                alert(
+                  err.response?.data?.message ||
+                    err.response?.data ||
+                    "Login failed",
+                );
+              });
+          };
+
+          return {
+            form,
+            login,
+          };
+        },
+      })
+        .use(ElementPlus)
+        .mount("#app");
+    </script>
+  </body>
+</html>
