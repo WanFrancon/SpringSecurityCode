@@ -1,6 +1,7 @@
 package com.franco.config;
 
 import com.franco.filter.TokenFilter;
+import com.franco.handler.AppLoutSuccessHandler;
 import com.franco.handler.MyAuthenticationFailureHandler;
 import com.franco.handler.MyAuthenticationSuccessHandler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -31,6 +33,9 @@ public class SecurityConfig {
 
     @Autowired
     private MyAuthenticationFailureHandler myAuthenticationFailureHandler;
+
+    @Autowired
+    private AppLoutSuccessHandler appLoutSuccessHandler;
 
     @Autowired
     private TokenFilter tokenFilter;
@@ -79,6 +84,13 @@ public class SecurityConfig {
                         .permitAll() // 允许所有用户访问
                 )
 
+                // 登出设置
+                .logout(logout -> logout
+                        .logoutUrl("/user/logout") // 登出接口
+                        .logoutSuccessHandler(appLoutSuccessHandler) // 登出成功处理
+                        .permitAll() // 允许所有用户访问
+                )
+
                 // 权限设置
                 .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // 解决options请求
@@ -87,8 +99,8 @@ public class SecurityConfig {
                         .anyRequest().authenticated() // 其他请求都需要认证
                 )
 
-                // 添加过滤器(添加登录之后过滤器)
-                .addFilterAfter(tokenFilter, UsernamePasswordAuthenticationFilter.class)
+                // 添加token验证过滤器(在退出登录过滤器前面)
+                .addFilterBefore(tokenFilter, LogoutFilter.class)
 
                 // 构建
                 .build();

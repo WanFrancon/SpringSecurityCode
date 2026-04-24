@@ -15,9 +15,13 @@ import java.util.Map;
 public class MyAuthenticationFailureHandler implements AuthenticationFailureHandler {
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
+
         response.setContentType("application/json;charset=UTF-8");
+
         response.setCharacterEncoding("UTF-8");
+
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
         response.getWriter().write(JSONUtil.toJsonStr(Map.of(
                 "code", 401,
                 "message", "login failed",

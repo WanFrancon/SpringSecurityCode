@@ -59,8 +59,29 @@
           };
 
           const logout = () => {
-            window.sessionStorage.removeItem("token");
-            isLogin.value = false;
+            const token = window.sessionStorage.getItem("token");
+            if (!token) {
+              alert("未找到登录令牌");
+              isLogin.value = false;
+              return;
+            }
+            axios({
+              method: "post",
+              url: "http://localhost:8080/user/logout",
+              headers: {
+                Authorization: `Bearer ${token.replace(/^"|"$/g, "")}`,
+              },
+            })
+              .then(() => {
+                window.sessionStorage.removeItem("token");
+                alert("已退出登录");
+                // 刷新页面
+                window.location.href = "./index.html";
+              })
+              .catch((err) => {
+                console.error(err);
+                alert("退出登录失败");
+              });
           };
 
           onMounted(() => {

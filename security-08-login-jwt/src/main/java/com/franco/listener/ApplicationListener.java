@@ -14,6 +14,7 @@ import java.util.Set;
  * 监听器
  * @author franco
  * 监听器，关闭服务时，对Redis进行操作
+ * 删除所有用户的 Token 和用户信息
  */
 @Component
 public class ApplicationListener implements org.springframework.context.ApplicationListener<ContextClosedEvent> {
