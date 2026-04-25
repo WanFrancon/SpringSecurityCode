@@ -52,8 +52,6 @@
             })
               .then((result) => {
                 const token = result.data?.token;
-                console.log("login response:", result.data);
-                console.log("token:", token);
 
                 if (!token) {
                   alert("Login success, but token is missing");
@@ -69,7 +67,7 @@
                 //   "token",
                 //   JSON.stringify(token),
                 // );
-                alert("Login success");
+                alert("登录成功");
 
                 // 登录成功后，可以选择跳转到wecom页面
                 window.location.href = "./wecom.html";
@@ -79,7 +77,7 @@
                 alert(
                   err.response?.data?.message ||
                     err.response?.data ||
-                    "Login failed",
+                    "登录失败，发生未知错误",
                 );
               });
           };

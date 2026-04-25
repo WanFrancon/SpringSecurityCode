@@ -16,6 +16,14 @@
         <h2>用户信息：</h2>
         <pre>{{ userProfile }}</pre>
       </section>
+      <section class="welcome">
+        <h2>访问</h2>
+        <span v-for="button in buttons" :key="button.label">
+          <button @click="() => visitEndpoint(button)">
+            {{ button.label }}
+          </button>
+        </span>
+      </section>
 
       <!-- 退出 -->
       <section class="logout" v-if="isLogin">
@@ -29,10 +37,38 @@
         setup() {
           const isLogin = ref(false);
           const userProfile = ref({});
+          const token = window.sessionStorage.getItem("token");
 
+          const buttons = ref([
+            {
+              label: "线索列表",
+              method: "get",
+              url: "http://localhost:8080/api/clue/list",
+            },
+            {
+              label: "线索录入",
+              method: "get",
+              url: "http://localhost:8080/api/clue/add",
+            },
+            {
+              label: "线索编辑",
+              method: "get",
+              url: "http://localhost:8080/api/clue/edit",
+            },
+            {
+              label: "线索删除",
+              method: "get",
+              url: "http://localhost:8080/api/clue/delete",
+            },
+            {
+              label: "线索查看",
+              method: "get",
+              url: "http://localhost:8080/api/clue/view",
+            },
+          ]);
+
+          // 显示用户信息
           const showUserProfile = () => {
-            const token = window.sessionStorage.getItem("token");
-
             if (!token) {
               alert("请先登录");
               window.location.href = "./index.html";
@@ -58,8 +94,28 @@
               });
           };
 
+          // 访问特定接口
+          visitEndpoint: (button) => {
+            if (button.method === "get") {
+              axios({
+                method: "get",
+                url: button.url,
+                headers: {
+                  Authorization: `Bearer ${token.replace(/^"|"$/g, "")}`,
+                },
+              })
+                .then((result) => {
+                  alert("访问成功", result.data);
+                })
+                .catch((err) => {
+                  console.error(err);
+                  alert("访问失败");
+                });
+            }
+          };
+
+          // 退出登录
           const logout = () => {
-            const token = window.sessionStorage.getItem("token");
             if (!token) {
               alert("未找到登录令牌");
               isLogin.value = false;
@@ -88,10 +144,12 @@
             showUserProfile();
           });
 
+          // 返回数据和方法
           return {
             userProfile,
             isLogin,
             logout,
+            visitEndpoint,
           };
         },
       })
