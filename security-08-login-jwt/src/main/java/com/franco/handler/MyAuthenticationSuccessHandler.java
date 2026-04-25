@@ -4,13 +4,13 @@ import cn.hutool.json.JSONUtil;
 import cn.hutool.jwt.JWTUtil;
 import com.franco.constant.Constant;
 import com.franco.pojo.TUser;
+import com.franco.result.Result;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -72,11 +72,9 @@ public class MyAuthenticationSuccessHandler implements AuthenticationSuccessHand
         redisTemplate.opsForValue().set(Constant.USER_LOGIN_KEY + tUser.getId(),
                 token, expiration, TimeUnit.SECONDS);
 
-        // 返回  token 给前端
-        response.getWriter().write(JSONUtil.toJsonStr(Map.of(
-                "code", 200,
-                "message", "login success",
+        // 返回 token 给前端
+        response.getWriter().write(JSONUtil.toJsonStr(Result.success("login success", Map.of(
                 "token", token
-        )));
+        ))));
     }
 }

@@ -3,6 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' http://localhost:8080; img-src 'self' data:; style-src 'self' 'unsafe-inline';"
+    />
     <title>Login</title>
     <link href="./css/index.css" rel="stylesheet" type="text/css" />
     <script src="./js/vue.global.js"></script>
@@ -26,24 +30,67 @@
               type="password"
             ></el-input>
           </el-form-item>
+          <el-form-item label="Captcha">
+            <el-input
+              placeholder="Captcha"
+              v-model="form.captchaCode"
+            ></el-input>
+            <img
+              v-if="captchaImage"
+              :src="captchaImage"
+              alt="captcha"
+              style="
+                width: 100px;
+                height: 40px;
+                margin-left: 8px;
+                cursor: pointer;
+                vertical-align: middle;
+              "
+              @click="refreshCaptcha"
+            />
+          </el-form-item>
         </el-form>
         <button @click="login">Login</button>
       </section>
     </div>
     <script>
-      const { createApp, reactive, ref } = Vue;
+      const { createApp, reactive, ref, onMounted } = Vue;
 
       createApp({
         setup() {
           const form = reactive({
             username: "zhangqi",
             password: "aaa111",
+            captchaCode: "",
+            captchaKey: "",
           });
 
+          const captchaImage = ref("");
+
+          // 刷新验证码
+          const refreshCaptcha = () => {
+            axios({
+              method: "get",
+              url: "http://localhost:8080/captchaCode",
+            })
+              .then((result) => {
+                form.captchaKey = result.data?.data?.captchaKey || "";
+                form.captchaCode = "";
+                captchaImage.value = result.data?.data?.image || "";
+              })
+              .catch((err) => {
+                console.error(err);
+                alert("验证码加载失败");
+              });
+          };
+
+          // 登录方法
           const login = () => {
             const params = new URLSearchParams();
             params.append("username", form.username);
             params.append("password", form.password);
+            params.append("captchaCode", form.captchaCode); // 添加验证码输入到请求参数中
+            params.append("captchaKey", form.captchaKey); // 添加验证码key到请求参数中
 
             axios({
               method: "post",
@@ -51,7 +98,7 @@
               data: params,
             })
               .then((result) => {
-                const token = result.data?.token;
+                const token = result.data?.data?.token;
 
                 if (!token) {
                   alert("Login success, but token is missing");
@@ -70,10 +117,11 @@
                 alert("登录成功");
 
                 // 登录成功后，可以选择跳转到wecom页面
-                window.location.href = "./wecom.html";
+                window.location.href = "./wellCom.html";
               })
               .catch((err) => {
                 console.error(err);
+                refreshCaptcha();
                 alert(
                   err.response?.data?.message ||
                     err.response?.data ||
@@ -82,8 +130,14 @@
               });
           };
 
+          onMounted(() => {
+            refreshCaptcha();
+          });
+
           return {
             form,
+            captchaImage,
+            refreshCaptcha,
             login,
           };
         },

@@ -2,21 +2,31 @@ package com.franco.controller;
 
 import cn.hutool.captcha.CaptchaUtil;
 import cn.hutool.captcha.ICaptcha;
+import com.franco.constant.Constant;
+import com.franco.result.Result;
 import com.franco.utils.LoginIfoUtil;
 import com.franco.utils.MyCodeGenerator;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.ByteArrayOutputStream;
 import java.security.Principal;
+import java.util.Base64;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping
 //跨域处理
 @CrossOrigin(origins = "*")
 public class UserController {
+    @Autowired
+    private StringRedisTemplate redisTemplate;
+
     @GetMapping("/")
     public String hello() {
         return "hello world";
@@ -25,11 +35,9 @@ public class UserController {
  * 获取验证码
  */
     @GetMapping("/captchaCode")
-    public void getCaptchaCode(HttpSession  session, HttpServletResponse response) throws Exception {
+    public Result<Map<String, Object>> getCaptchaCode() throws Exception {
 
-        //1.前后端不分离的场景，告诉浏览器响应的是图片
-        response.setContentType("image/jpeg");
-        //2.使用验证码工具类生成验证码
+        //1. 使用验证码工具类生成验证码
         /**
          * 有动态的还有静态验证码 两种
          *
@@ -39,11 +47,27 @@ public class UserController {
          * 并重写generate方法，然后把这个类当做参数传递给方法
          */
         ICaptcha captcha = CaptchaUtil.createGifCaptcha(100, 40, new MyCodeGenerator(), 4);
-        //3.将验证码保存在session中
-        session.setAttribute("captcha", captcha.getCode());
 
-        //4.将验证码写出去
-        captcha.write(response.getOutputStream());
+        //验证码的key
+        String captchaKey = UUID.randomUUID().toString();
+
+        //2. 将验证码答案保存到 Redis，2 分钟过期
+        redisTemplate.opsForValue().set(
+                Constant.CAPTCHA_KEY + captchaKey,
+                captcha.getCode(),
+                2,
+                TimeUnit.MINUTES
+        );
+
+        //3. 将验证码图片转成 base64，前端直接放到 img src
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        captcha.write(outputStream);
+        String imageBase64 = Base64.getEncoder().encodeToString(outputStream.toByteArray());
+
+        return Result.success(Map.of(
+                "captchaKey", captchaKey,  //验证码的key
+                "image", "data:image/gif;base64," + imageBase64  //验证码图片
+        ));
     }
 
     @GetMapping("/welcome1")

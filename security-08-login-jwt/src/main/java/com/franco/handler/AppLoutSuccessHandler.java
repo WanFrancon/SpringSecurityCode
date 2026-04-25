@@ -3,6 +3,7 @@ package com.franco.handler;
 import cn.hutool.json.JSONUtil;
 import com.franco.constant.Constant;
 import com.franco.pojo.TUser;
+import com.franco.result.Result;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -13,7 +14,6 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Map;
 
 @Component
 public class AppLoutSuccessHandler implements LogoutSuccessHandler {
@@ -41,9 +41,6 @@ public class AppLoutSuccessHandler implements LogoutSuccessHandler {
             System.out.println("已删除用户 " + tUser.getId() + " 的登录信息");
         }
 
-        response.getWriter().write(JSONUtil.toJsonStr(Map.of(
-                "code", 200,
-                "message", "logout success"
-        )));
+        response.getWriter().write(JSONUtil.toJsonStr(Result.success("logout success", null)));
     }
 }

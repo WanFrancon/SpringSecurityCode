@@ -1,10 +1,13 @@
 package com.franco.filter;
 
 
+import cn.hutool.json.JSONUtil;
 import cn.hutool.jwt.JWTUtil;
 import com.franco.constant.Constant;
+import com.franco.mapper.TPermissionMapper;
+import com.franco.pojo.TPermission;
 import com.franco.pojo.TUser;
-import com.franco.utils.HutoolJwtUtils;
+import com.franco.result.Result;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,18 +16,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @Component
 public class TokenFilter extends OncePerRequestFilter {
     @Autowired
     private StringRedisTemplate redisTemplate;
+
+    @Autowired
+    private TPermissionMapper tPermissionMapper;
 
     @Value("${jwt.secret}")
     private String secret;
@@ -45,7 +51,9 @@ public class TokenFilter extends OncePerRequestFilter {
         // 判断当前请求是否是登录请求（并且是post请求方式）
         boolean isLoginSubmission = Constant.LOGIN_PROCESSING_URL.equals(requestURI) && "POST".equalsIgnoreCase(request.getMethod());
 
-        if (isLoginSubmission) { /*是登录请求*/
+        boolean isCaptchaRequest = "/captchaCode".equals(requestURI);
+
+        if (isLoginSubmission || isCaptchaRequest) { /*是登录请求或验证码请求*/
             filterChain.doFilter(request, response);
             return; // 添加return，避免继续执行
         }
@@ -58,8 +66,7 @@ public class TokenFilter extends OncePerRequestFilter {
 
             //验证 Authorization: Bearer <token值> 标准格式
             if (token == null || !token.startsWith("Bearer ")) {
-                response.setStatus(401); //401 未授权
-                response.getWriter().write("{\"code\":401,\"msg\":\"未提供Token\"}");
+                writeUnauthorized(response, "未提供Token");
                 return; // 立即返回
             }
 
@@ -80,8 +87,7 @@ public class TokenFilter extends OncePerRequestFilter {
             }
 
             if (!verify) {
-                response.setStatus(401);
-                response.getWriter().write("{\"code\":401,\"msg\":\"Token无效或已过期\"}");
+                writeUnauthorized(response, "Token无效或已过期");
                 return; // 立即返回
             }
 
@@ -95,18 +101,19 @@ public class TokenFilter extends OncePerRequestFilter {
 
 
             if (redisToken == null || !redisToken.equals(token)) {
-                response.setStatus(401);
-                response.getWriter().write("{\"code\":401,\"msg\":\"Token已失效，请重新登录\"}");
+                writeUnauthorized(response, "Token已失效，请重新登录");
                 return; // 立即返回
             }
 
             // 从 Redis 获取完整用户信息
             String userJSON = redisTemplate.opsForValue().get(Constant.USER_INFO_KEY + userId);
             TUser user = cn.hutool.json.JSONUtil.toBean(userJSON, TUser.class);
+            List<TPermission> permissions = tPermissionMapper.selectByUserId(user.getId());
+            user.setTPermission(permissions);
 
             // 【关键】创建 Authentication 对象，告诉 Security 用户已认证
             UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(user, null, AuthorityUtils.NO_AUTHORITIES);
+                    new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
 
             // 将 Authentication 存入 SecurityContext
             SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -119,5 +126,12 @@ public class TokenFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         }
 
+    }
+
+    private void writeUnauthorized(HttpServletResponse response, String message) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json;charset=UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(JSONUtil.toJsonStr(Result.fail(401, message)));
     }
 }

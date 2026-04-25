@@ -3,6 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' http://localhost:8080; style-src 'self' 'unsafe-inline';"
+    />
     <title>欢迎界面</title>
     <link href="./css/index.css" rel="stylesheet" type="text/css" />
     <script src="./js/vue.global.js"></script>
@@ -16,6 +20,7 @@
         <h2>用户信息：</h2>
         <pre>{{ userProfile }}</pre>
       </section>
+
       <section class="welcome">
         <h2>访问</h2>
         <span v-for="button in buttons" :key="button.label">
@@ -23,6 +28,7 @@
             {{ button.label }}
           </button>
         </span>
+        <pre v-if="endpointResult">{{ endpointResult }}</pre>
       </section>
 
       <!-- 退出 -->
@@ -37,6 +43,7 @@
         setup() {
           const isLogin = ref(false);
           const userProfile = ref({});
+          const endpointResult = ref("");
           const token = window.sessionStorage.getItem("token");
 
           const buttons = ref([
@@ -95,7 +102,7 @@
           };
 
           // 访问特定接口
-          visitEndpoint: (button) => {
+          const visitEndpoint = (button) => {
             if (button.method === "get") {
               axios({
                 method: "get",
@@ -105,11 +112,18 @@
                 },
               })
                 .then((result) => {
-                  alert("访问成功", result.data);
+                  endpointResult.value = `${button.label}：${result.data}`;
+                  alert(`访问成功：${result.data}`);
+                  console.log(`Response from ${button.label}:`, result.data);
                 })
                 .catch((err) => {
                   console.error(err);
-                  alert("访问失败");
+                  endpointResult.value =
+                    err.response?.data?.message ||
+                    err.response?.data?.msg ||
+                    err.response?.data ||
+                    "访问失败";
+                  alert(endpointResult.value);
                 });
             }
           };
@@ -147,7 +161,9 @@
           // 返回数据和方法
           return {
             userProfile,
+            endpointResult,
             isLogin,
+            buttons,
             logout,
             visitEndpoint,
           };

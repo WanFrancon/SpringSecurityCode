@@ -1,9 +1,12 @@
 package com.franco.config;
 
+import cn.hutool.json.JSONUtil;
+import com.franco.filter.CaptchaFilter;
 import com.franco.filter.TokenFilter;
 import com.franco.handler.AppLoutSuccessHandler;
 import com.franco.handler.MyAuthenticationFailureHandler;
 import com.franco.handler.MyAuthenticationSuccessHandler;
+import com.franco.result.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -39,6 +42,9 @@ public class SecurityConfig {
 
     @Autowired
     private TokenFilter tokenFilter;
+
+    @Autowired
+    private CaptchaFilter captchaFilter;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -98,6 +104,25 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/user/login").permitAll() // 允许登录
                         .anyRequest().authenticated() // 其他请求都需要认证
                 )
+
+                // 统一处理 Spring Security 认证和授权异常
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(401);
+                            response.setContentType("application/json;charset=UTF-8");
+                            response.setCharacterEncoding("UTF-8");
+                            response.getWriter().write(JSONUtil.toJsonStr(Result.fail(401, "请先登录")));
+                        })
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.setStatus(403);
+                            response.setContentType("application/json;charset=UTF-8");
+                            response.setCharacterEncoding("UTF-8");
+                            response.getWriter().write(JSONUtil.toJsonStr(Result.fail(403, "权限不足")));
+                        })
+                )
+
+                // 添加验证码过滤器(在用户名密码过滤器前面)
+                .addFilterBefore(captchaFilter, UsernamePasswordAuthenticationFilter.class)
 
                 // 添加token验证过滤器(在退出登录过滤器前面)
                 .addFilterBefore(tokenFilter, LogoutFilter.class)

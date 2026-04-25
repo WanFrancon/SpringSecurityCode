@@ -17,4 +17,7 @@ public class Constant {
 
     //security 登录请求的url
     public static final String LOGIN_PROCESSING_URL = "/user/login";
+
+    // 验证码保存在 Redis 中的 key 前缀
+    public static final String CAPTCHA_KEY = "security:captcha:";
 }

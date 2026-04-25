@@ -4,9 +4,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -101,14 +103,14 @@ public class TUser implements Serializable , UserDetails {
     /**
      * 角色表
      */
-    @JsonIgnore
-    List<TRole> roles;
+//    @JsonIgnore
+//    List<TRole> roles;
 
     /**
      * 权限表
      */
-//    @JsonIgnore
-//    List<TPermission>  tPermission;
+    @JsonIgnore
+    List<TPermission>  tPermission;
 
 /*-------------------------------- 实现UserDetails 的七个方法 --------------------------------*/
     /*
@@ -116,12 +118,11 @@ public class TUser implements Serializable , UserDetails {
      */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-//        Collection<GrantedAuthority>  authorities = new ArrayList<>();
-//        for (TPermission tRolePermission : this.tPermission) {
-//            authorities.add(new SimpleGrantedAuthority(tRolePermission.getCode()));
-//        }
-//        return authorities;
-        return List.of();
+        Collection<GrantedAuthority>  authorities = new ArrayList<>();
+        for (TPermission tRolePermission : this.tPermission) {
+            authorities.add(new SimpleGrantedAuthority(tRolePermission.getCode()));
+        }
+        return authorities;
     }
 
     /**

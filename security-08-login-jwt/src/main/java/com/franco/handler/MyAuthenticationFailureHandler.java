@@ -1,6 +1,7 @@
 package com.franco.handler;
 
 import cn.hutool.json.JSONUtil;
+import com.franco.result.Result;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -9,7 +10,6 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Map;
 
 @Component
 public class MyAuthenticationFailureHandler implements AuthenticationFailureHandler {
@@ -22,10 +22,6 @@ public class MyAuthenticationFailureHandler implements AuthenticationFailureHand
 
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-        response.getWriter().write(JSONUtil.toJsonStr(Map.of(
-                "code", 401,
-                "message", "login failed",
-                "error", exception.getMessage()
-        )));
+        response.getWriter().write(JSONUtil.toJsonStr(Result.fail(401, "用户名或密码错误")));
     }
 }
